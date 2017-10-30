@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <title>ChassiDex</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/grid2.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type='text/javascript'>
+    index = []
+    function drop(i){
+        a = ['none','grid'];
+        document.getElementById('menu').style.display = a[i]
+    }
+  </script>
+</head>
+<body>
+    <div class="grid" id="menu">
+        <div class="close">
+            <svg width=25 height=25 onclick="drop(0)">
+                <line x1=0 x2=25 y1=0 y2=25 stroke=white stroke-width=4 />
+                <line x1=25 x2=0 y1=0 y2=25 stroke=white stroke-width=4 />
+            </svg>
+        </div>
+        <div class="box">
+            <a href="/">Home</a><br>
+            <a href="/about">About</a><br>
+            <a href="/codonopt/1">Codon Optimizer</a><br>
+            <a href="/manual">Manual</a><br>
+        </div>
+    </div>
+    <div class="grid" id="header">
+        <div class="box">
+            <svg width=190 height=20 onclick="drop(1)">
+                <rect x=0 y=0 width=30 height=4 fill=white />
+                <rect x=0 y=8 width=30 height=4 fill=white />
+                <rect x=0 y=16 width=30 height=4 fill=white />
+                <text x=40 y=20>ChassiDex</text>
+            </svg>
+        </div>
+    </div>
+    <div class="grid title" id="abouttitle">
+        <div class="box">
+                <h1>ChassiDex is your one-stop guide to engineering your chosen host organism.</h1> <br><br>
+                A database of basic information about various organisms to get you started - from the preferred medium and growth conditions, to available vectors and transformation protocols. <br><br>
+                With a manual to get you started on what kind of information you need to work with your organism (most of which is provided in the database) how to use it, and why, and an integrated codon optimization tool, ChassiDex consolidates resources with one easy-to-use interface.<br><br>
+                With ChassiDex, we hope to encourage beginning researchers to experiment with organisms other than the popular and well characterized <i>E. coli</i> - to explore better and more well-suited organisms, and thereby also learn more about them.<br><br>
+                ChassiDex was designed by Team IIT-Madras, participating in iGEM 2017. Please check out our <a href="https://2017.igem.org/Team:IIT-Madras/">wiki</a> and feel free to mail us with feedback or suggestions at <b>igemiitmadras@gmail.com</b>
+
+
+
+
+        </div>
+    </div>
+</body>
+</html>

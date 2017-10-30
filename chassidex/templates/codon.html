@@ -1,0 +1,352 @@
+<!doctype html>
+<html>
+<head>
+  <title>ChassiDex Codon Optimizer</title>
+  <style type="text/css">
+    @font-face{
+        src: url({{ url_for('static', filename='lsb.otf') }});
+        font-family: head;
+    }
+    @font-face {
+        src: url({{ url_for('static', filename='in.otf') }});
+        font-family: main;
+    }
+    * {
+        box-sizing: border-box;
+    }
+    body{
+        text-align: center;
+        color: #ffffff;
+        font-family: main;
+        background: #000913;
+        padding: 0px;
+        margin: 0px;
+    }
+    .container{
+        display: inline-block;
+        max-width: 768px;
+        text-align: center;
+        padding: 20px;
+    }
+    h1{
+        font-family: head;
+        letter-spacing: 2px;
+        font-size: 40px;
+        text-align: center;
+    }
+    h2{
+        text-align: center;
+        font-weight: 200;
+    }
+    h3{
+        font-size: 30px;
+        font-weight: 200;
+        text-align: center;
+    }
+    p{
+        font-size: 20px;
+    }
+    .btn{
+        font-size: 20px;
+        background: #ffffff;
+        color: #003690;
+        font-weight: 200;
+        padding: 10px;
+        border: 0px;
+    }
+    .btn:hover{
+        cursor: pointer;
+        cursor: hand;
+    }
+    textarea{
+        padding: 10px;
+    }
+    input{
+        font-family: main;
+        font-size: 15px;
+    }
+    #editor{
+        display: none;
+        position: absolute;
+        top: 0px;
+        width: 70%;
+        left: 30%;
+        margin: 0px;
+        padding: 0px;
+    }
+    #stats{
+        display: none;
+        position: fixed;
+        top: 0px;
+        width: 30%;
+        left: 0%;
+        margin: 0px;
+        padding: 20px;
+        text-align: left;
+        font-size: 25px;
+    }
+    #seq_view{
+        background: #ffffff;
+        text-align: left;
+        margin: 0px;
+        padding: 30px;
+        width: 100%;
+    }
+    #seq_view select{
+        font-family: main;
+        margin: 25px 5px;
+        font-size: 15px;
+        border: 3px solid #208020;
+        border-radius: 2px;
+        padding: 5px;
+        color: #104010;
+        background: #ffffff;
+        letter-spacing: 1px;
+        width: 63px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #gc{
+        color: #325ea6;
+    }
+    #rc{
+        color: #a63232;
+    }
+    #dwn{
+        color: white;
+        background: #202080;
+        padding: 10px;
+        font-size: 20px;
+    }
+    #dwn:hover{
+        cursor: pointer;
+        cursor: hand;
+    }
+    #org{
+        font-family: main;
+        background: #202080;
+        color: white;
+        padding: 5px;
+    }
+  </style>
+  <script src="{{ url_for('static', filename='yaco.js') }}"></script>
+  <script type="text/javascript">
+    codonprefs = '';
+    seq = '';
+    function inseq(){
+        radios = document.getElementsByName('seq');
+        type = ''
+        for(i=0;i<3;i++){
+            if(radios[i].checked){
+                type = radios[i].value;
+            }
+        }
+        seq = read_fasta(document.getElementById('seq_text').value).toUpperCase();
+        if(type=="dna"){
+            seq = dna2protein(seq)
+        }
+        if(type=="rna"){
+            seq = rna2protein(seq)
+        }
+        table_url = '/static/codontables/{{index}}.json';
+        optimizeWithCodonTable(table_url);
+        opt = {{index}};
+        opt--;
+        document.getElementById("org").selectedIndex = opt;
+    }
+    function optimizeWithCodonTable(filename){
+        req=new XMLHttpRequest();
+        req.onreadystatechange = function(){
+            if (req.readyState==4 && req.status==200){
+                codonprefs = parseUsageTable(req.responseText);
+                opt_seq_list = optimize(seq,codonprefs)
+                document.getElementById('input').style.display = 'none';
+                document.getElementById('editor').style.display = 'block';
+                document.getElementById('stats').style.display = 'block';
+                putSequenceInEditor(opt_seq_list)
+                update()
+            }
+        }
+        req.open("GET",filename,true);
+        req.send();
+    }
+    function putSequenceInEditor(seq_list){
+        seq_html = '';
+        for(i=0;i<seq_list.length;i++){
+            codons = Object.keys(codonprefs[seq_list[i][0]])
+            seq_html+="<select onchange='update()'>";
+            for(j=0;j<codons.length;j++){
+                seq_html+="<option value="+codons[j]+">"+codons[j].toString()+" "+codonprefs[seq_list[i][0]][codons[j]].toString().slice(0,5)+"</option>";
+            }
+            seq_html+="</select>";
+        }
+        seq_view = document.getElementById('seq_view')
+        seq_view.innerHTML = seq_html;
+        codon_list = seq_view.childNodes
+        for(i=0;i<codon_list.length;i++){
+            codon_list[i].value = seq_list[i][1]
+        }
+
+    }
+    function getSequenceFromEditor(){
+        sequence = ''
+        seq_view = document.getElementById('seq_view')
+        codon_list = seq_view.childNodes
+        for(i=0;i<codon_list.length;i++){
+            sequence+=codon_list[i].options[codon_list[i].selectedIndex].value
+        }
+        return sequence
+    }
+    function getRed(){
+        seq_view = document.getElementById('seq_view');
+        codon_list = seq_view.childNodes;
+        n = 0;
+        for(i=0;i<codon_list.length;i++){
+            if(codon_list[i].state=="red"){
+                n++;
+            }
+        }
+        return n
+    }
+    function getIndicesOf(searchStr, str) {
+        var searchStrLen = searchStr.length;
+        if (searchStrLen == 0) {
+            return [];
+        }
+        var startIndex = 0, index, indices = [];
+        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+            indices.push(index);
+            startIndex = index + searchStrLen;
+        }
+        return indices;
+    }
+    function update(){
+        s = getSequenceFromEditor();
+        document.getElementById('gc').innerHTML = percent_gc(s).toFixed(2);
+        avoid = document.getElementById('forbidden').value;
+        avoid = avoid.split(',')
+        seq_view = document.getElementById('seq_view')
+        codon_list = seq_view.childNodes
+        for(i=0;i<codon_list.length;i++){
+            codon_list[i].style.borderColor = '#208020';
+            codon_list[i].state = 'green';
+        }
+        for(i=0;i<avoid.length;i++){
+            avoid[i] = avoid[i].toUpperCase();
+            indices = getIndicesOf(avoid[i],s)
+            for(j=0;j<indices.length;j++){
+                start = indices[j]
+                end = start + avoid[i].length
+                for(k=start;k<end;k++){
+                    codon_list[Math.floor(k/3)].style.borderColor = "#802020";
+                    codon_list[Math.floor(k/3)].state = 'red';
+                }
+            }
+        }
+        document.getElementById('rc').innerHTML = getRed();
+    }
+    function download() {
+        text = getSequenceFromEditor();
+        fasta = "> Codon optimized sequence\n";
+        for(i=0;i<text.length;i++){
+            fasta = fasta + text[i];
+            if(i%50==49){
+                fasta = fasta + '\n';
+            }
+        }
+        console.log(fasta)
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(fasta));
+        element.setAttribute('download', 'optimized.fasta');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+    function change_host(){
+        host = document.getElementById('org');
+        file = host.options[host.selectedIndex].value;
+        optimizeWithCodonTable(file);
+    }
+  </script>
+</head>
+<body>
+    <div class="container" id="input">
+    <h1>
+        ChassiDex Codon Optimizer
+    </h1>
+    <p>
+        <br>
+        <textarea id="seq_text" cols=80 rows=15 placeholder="Paste your sequence here in fasta format" required></textarea>
+        <br><br><br>
+        This is a: <br>
+            <input type="radio" name="seq" value="dna" checked required> DNA sequence
+            <input type="radio" name="seq" value="rna"> RNA sequence
+            <input type="radio" name="seq" value="prot"> Protein sequence
+            <br><br>
+        <input type='submit' class="btn" value='Start optimizing!'  onclick="inseq()">
+    </p>
+    </div>
+    <div id="editor">
+        <p id="seq_view">
+
+        </p>
+    </div>
+    <div id="stats">
+        Organism:<br>
+        <select id="org" onchange="change_host()">
+            <option value="/static/codontables/1.json">
+                Pseudomonas putida KT2440
+            </option>
+            <option value="/static/codontables/2.json">
+                Bacillus subtilis 168
+            </option>
+            <option value="/static/codontables/3.json">
+                Escherichia coli BL21
+            </option>
+            <option value="/static/codontables/4.json">
+                Lactococcus lactis IL1403
+            </option>
+            <option value="/static/codontables/5.json">
+                Magnetospirullum magneticum AMB-1
+            </option>
+            <option value="/static/codontables/6.json">
+                Acidithiobacillus ferrooxidans ATCC 23270
+            </option>
+            <option value="/static/codontables/7.json">
+                Saccharomyces cerevisiae S288C
+            </option>
+            <option value="/static/codontables/8.json">
+                Azotobacter vinelandii DJ
+            </option>
+            <option value="/static/codontables/9.json">
+                Streptococcus Thermophilus LMG 18311
+            </option>
+            <option value="/static/codontables/10.json">
+                Komagataella Pichia pastoris DSMZ 70382
+            </option>
+            <option value="/static/codontables/11.json">
+                Komagataella  Pichia pastoris SMD1168H
+            </option>
+            <option value="/static/codontables/12.json">
+                Vibrio harveyi  JMH626
+            </option>
+        </select>
+        <br><br>
+        GC%:<br>
+        <span id="gc"></span>
+        <br><br>
+        Sequences<br>to avoid:<br><br>
+        <textarea id="forbidden" rows=10 onkeyup="update()" placeholder="separate sequences using comma (,)"></textarea>
+        <br><br>
+        Red codons:<br>
+        <span id="rc"></span>
+        <br><br>
+        <span id="dwn" onclick="download()">Download sequence</span>
+    </div>
+
+</body>
+</html>

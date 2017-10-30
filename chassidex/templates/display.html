@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+<head>
+  <title>{{ data['genus'] }} {{ data['species'] }} {{ data['strain'] }}</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/grid3.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type='text/javascript'>
+    function drop(i){
+        a = ['none','grid'];
+        document.getElementById('menu').style.display = a[i]
+    }
+
+  </script>
+</head>
+<body>
+    <div class="grid" id="menu">
+        <div class="close">
+            <svg width=25 height=25 onclick="drop(0)">
+                <line x1=0 x2=25 y1=0 y2=25 stroke=white stroke-width=4 />
+                <line x1=25 x2=0 y1=0 y2=25 stroke=white stroke-width=4 />
+            </svg>
+        </div>
+        <div class="box">
+            <a href="/">Home</a><br>
+            <a href="/about">About</a><br>
+            <a href="/codonopt/1">Codon Optimizer</a><br>
+            <a href="/manual">Manual</a><br>
+        </div>
+    </div>
+    <div class="grid" id="header">
+        <div class="box">
+            <svg width=190 height=20 onclick="drop(1)">
+                <rect x=0 y=0 width=30 height=4 fill=white />
+                <rect x=0 y=8 width=30 height=4 fill=white />
+                <rect x=0 y=16 width=30 height=4 fill=white />
+                <text x=40 y=20>ChassiDex</text>
+            </svg>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <a href="#basic_info"><i>{{ data['genus'] }} {{ data['species'] }} {{ data['strain'] }}</i></a>
+        <a href="#description">Description</a>
+        <a href="#genotype">Genotype</a>
+        <a href="#growth">Growth Characteristics</a>
+        <a href="#culture_sources">Culture Sources</a>
+        <a href="#maintenance">Maintenance protocols</a>
+        <a href="#transformation">Transformation protocols</a>
+        <a href="#other_protocols">Other protocols</a>
+        <a href="#biobricks">Biobrick parts</a>
+        <a href="#vectors">Vectors</a>
+        <a href="#metabolic_models">Metabolic models</a>
+    </div>
+
+    <div id="main_page">
+        <div class="data_box">
+            <a class="anchor" name="basic_info"></a>
+            <h1>
+                <i>{{ data['genus'] }} {{ data['species'] }} {{ data['strain'] }}</i>
+            </h1>
+            <p>
+                <a href="/edit/{{ data['index']}}" class="ref">
+                <img src="{{ url_for('static', filename='images/edit.png') }}" width="18" height="18"> Click here to edit this page</a>
+                <br><br>
+                <a href="/codonopt/{{ data['index']}}" class="ref">
+                <img src="{{ url_for('static', filename='images/codonopt.png') }}" width="18" height="18"> Codon optimize for this host</a>
+                <br><br>
+
+                <span class="field_title">
+                    Taxonomy ID:
+                </span>
+                {{data['tax_id']}}
+                <br>
+                <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id={{ data['tax_id']}}" class="ref">
+                More information at NCBI Taxonomy
+                </a>
+            </p>
+            <p>
+                <span class="field_title">
+                    Biosafety level:
+                </span>
+                {{ data['safety_level'] }}
+                <br>
+                Reference:
+                <a href="{{ data['safety_level_ref']}}">
+                {{ data['safety_level_ref'] }}
+                </a>
+            </p>
+            <p>
+                <span class="field_title">
+                    Genome Sequence:
+                </span>
+                <br>
+                <a href="{{ data['genome_sequence']}}" class="ref">
+                {{ data['genome_sequence'] }}
+                </a>
+            </p>
+
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="description"></a>
+            <h2>
+                Description
+            </h2>
+            <p>
+                {{ data['description'] }}
+            </p>
+            <p>
+                References:
+                <br>
+                {% for i in data['description_refs'] %}
+                    [{{ loop.index }}] <a href="{{ i }}" class="ref">{{ i }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="genotype"></a>
+            <h2>
+                Genotype
+            </h2>
+            <p>
+                {{ data['genotype'] }}
+            </p>
+            <p>
+                References:
+                <br>
+                {% for i in data['genotype_refs'] %}
+                    [{{ loop.index }}] <a href="{{ i }}" class="ref">{{ i }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="growth"></a>
+            <h2>
+                Growth Characteristics
+            </h2>
+            <p>
+                {{ data['growth'] }}
+            </p>
+            <p>
+                References:
+                <br>
+                {% for i in data['growth_refs'] %}
+                    [{{ loop.index }}] <a href="{{ i }}" class="ref">{{ i }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="culture_sources"></a>
+            <h2>
+                Culture Sources
+            </h2>
+            <p>
+                {% for i in data['culture_sources'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="maintenance"></a>
+            <h2>
+                Maintenance Protocols
+            </h2>
+            <p>
+                {% for i in data['maintenance_protocols'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="transformation"></a>
+            <h2>
+                Transformation Protocols
+            </h2>
+            <p>
+                {% for i in data['transformation_protocols'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="other_protocols"></a>
+            <h2>
+                Other Protocols
+            </h2>
+            <p>
+                {% for i in data['other_protocols'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="biobricks"></a>
+            <h2>
+                Biobrick Parts
+            </h2>
+            <p>
+                {% for i in data['biobrick_parts'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="vectors"></a>
+            <h2>
+                Vectors
+            </h2>
+            <p>
+                {% for i in data['vectors'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="data_box">
+            <a class="anchor" name="metabolic_models"></a>
+            <h2>
+                Metabolic Models
+            </h2>
+            <p>
+                {% for i in data['metabolic_models'] %}
+                    [{{ loop.index }}] {{ i[0] }}:
+                    <br>
+                    <a href="{{ i[1] }}" class="ref">{{ i[1] }}</a>
+                    <br><br>
+                {% endfor %}
+            </p>
+        </div>
+
+
+    </div>
+
+
+
+</body>
+</html>

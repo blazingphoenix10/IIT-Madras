@@ -1,0 +1,24 @@
+1
+Pseudomonas putida KT2440
+2
+Bacillus subtilis 168
+3
+Escherichia coli BL21
+4
+Lactococcus lactis IL1403
+5
+Magnetospirullum magneticum AMB-1
+6
+Acidithiobacillus ferrooxidans ATCC 23270
+7
+Saccharomyces cerevisiae S288C
+8
+Azotobacter vinelandii DJ
+9
+Streptococcus Thermophilus LMG 18311
+10
+Komagataella Pichia pastoris DSMZ 70382
+11
+Komagataella  Pichia pastoris SMD1168H
+12
+Vibrio harveyi  JMH626

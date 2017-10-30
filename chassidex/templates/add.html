@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+<head>
+  <title>Add new host</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/grid.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type='text/javascript'>
+    function drop(i){
+        a = ['none','grid'];
+        document.getElementById('menu').style.display = a[i]
+    }
+    function htmlForSingle(cat,n){
+        s = "<li><span>"+(n+1).toString()+"</span>";
+        s += "<input type=\"url\" name=\""+cat+n.toString()+"\" size=30>";
+        s += "<span class=\"button\" onclick=\"removeSingleBox(this)\">X&nbsp&nbspRemove</span></li>";
+        return s
+    }
+    function htmlForDouble(cat,n){
+        s = "<li><span>"+(n+1).toString()+"</span>";
+        s += "<input type=\"text\" name=\""+cat+n.toString()+"\" size=30>";
+        s += "<input type=\"url\" name=\""+cat+"_ref"+n.toString()+"\" placeholder=\"enter reference here\" size=30>";
+        s += "<span class=\"button\" onclick=\"removeDoubleBox(this)\">X&nbsp&nbspRemove</span></li>";
+        return s
+    }
+
+    function loaded(){
+        addSingleBox('description_ref');
+        addSingleBox('genotype_ref');
+        addSingleBox('growth_ref');
+        addDoubleBox('culture_source');
+        addDoubleBox('maintenance_protocol');
+        addDoubleBox('transformation_protocol');
+        addDoubleBox('other_protocol');
+        addDoubleBox('biobrick_part');
+        addDoubleBox('vector');
+        addDoubleBox('metabolic_model');
+        window.onbeforeunload = function() {
+            return "Have you entered all the data you have?";
+        };
+    }
+    function beforesubmit(){
+        window.onbeforeunload = null;
+    }
+    function addSingleBox(cat){
+        nodes = document.getElementById(cat).childNodes;
+        values = []
+        s = ''
+        for(i=0;i<nodes.length;i++){
+            values.push(nodes[i].childNodes[1].value);
+            s += htmlForSingle(cat,i);
+        }
+        s += htmlForSingle(cat,nodes.length);
+        document.getElementById(cat).innerHTML = s;
+        for(i=0;i<values.length;i++){
+            document.getElementsByName(cat+i.toString())[0].value = values[i]
+        }
+        if(nodes.length==1){
+            document.getElementById(cat).childNodes[0].childNodes[2].style.display = 'none';
+        }
+    }
+    function removeSingleBox(entry){
+        cat = entry.parentNode.parentNode.id;
+        nodes = document.getElementById(cat).childNodes;
+        values = []
+        s = ''
+        for(i=0;i<nodes.length;i++){
+            values.push(nodes[i].childNodes[1].value);
+        }
+        n = parseInt(entry.parentNode.childNodes[1].name.slice(cat.length));
+        values.splice(n,1);
+        for(i=0;i<values.length;i++){
+            s += htmlForSingle(cat,i);
+        }
+        document.getElementById(cat).innerHTML = s;
+        for(i=0;i<values.length;i++){
+            document.getElementsByName(cat+i.toString())[0].value = values[i]
+        }
+        if(nodes.length==1){
+            document.getElementById(cat).childNodes[0].childNodes[2].style.display = 'none';
+        }
+    }
+    function addDoubleBox(cat){
+        nodes = document.getElementById(cat).childNodes;
+        values = [];
+        refs = [];
+        s = ''
+        for(i=0;i<nodes.length;i++){
+            values.push(nodes[i].childNodes[1].value);
+            refs.push(nodes[i].childNodes[2].value);
+            s += htmlForDouble(cat,i);
+        }
+        s += htmlForDouble(cat,nodes.length);
+        document.getElementById(cat).innerHTML = s;
+        for(i=0;i<values.length;i++){
+            document.getElementsByName(cat+i.toString())[0].value = values[i]
+            document.getElementsByName(cat+"_ref"+i.toString())[0].value = refs[i]
+        }
+        if(nodes.length==1){
+            document.getElementById(cat).childNodes[0].childNodes[3].style.display = 'none';
+        }
+    }
+    function removeDoubleBox(entry){
+        cat = entry.parentNode.parentNode.id;
+        nodes = document.getElementById(cat).childNodes;
+        values = [];
+        refs = [];
+        s = ''
+        for(i=0;i<nodes.length;i++){
+            values.push(nodes[i].childNodes[1].value);
+            refs.push(nodes[i].childNodes[2].value);
+        }
+        n = parseInt(entry.parentNode.childNodes[1].name.slice(cat.length));
+        values.splice(n,1);
+        refs.splice(n,1);
+        for(i=0;i<values.length;i++){
+            s += htmlForDouble(cat,i);
+        }
+        document.getElementById(cat).innerHTML = s;
+        for(i=0;i<values.length;i++){
+            document.getElementsByName(cat+i.toString())[0].value = values[i];
+            document.getElementsByName(cat+"_ref"+i.toString())[0].value = refs[i];
+        }
+        if(nodes.length==1){
+            document.getElementById(cat).childNodes[0].childNodes[3].style.display = 'none';
+        }
+    }
+  </script>
+</head>
+<body onload=loaded()>
+    <div class="grid" id="menu">
+        <div class="close">
+            <svg width=25 height=25 onclick="drop(0)">
+                <line x1=0 x2=25 y1=0 y2=25 stroke=white stroke-width=4 />
+                <line x1=25 x2=0 y1=0 y2=25 stroke=white stroke-width=4 />
+            </svg>
+        </div>
+        <div class="box">
+            <a href="/">Home</a><br>
+            <a href="/about">About</a><br>
+            <a href="/codonopt/1">Codon Optimizer</a><br>
+            <a href="/manual">Manual</a><br>
+        </div>
+    </div>
+    <div class="grid" id="header">
+        <div class="box">
+            <svg width=190 height=20 onclick="drop(1)">
+                <rect x=0 y=0 width=30 height=4 fill=white />
+                <rect x=0 y=8 width=30 height=4 fill=white />
+                <rect x=0 y=16 width=30 height=4 fill=white />
+                <text x=40 y=20>ChassiDex</text>
+            </svg>
+        </div>
+    </div>
+    <div class="grid title">
+        <div class="box">
+            <h1>Add new host</h1>
+        </div>
+    </div>
+    <form class="grid" action="/submit" method="post">
+        <div class="box left">
+            <h3>Taxonomy</h3>
+            <p>
+                This section includes the taxonomic classfication of the host organism.
+                The name of the host organism includes the genus name, species name and strain.
+                The Taxonomy ID is a unique number assigned to organims and can be found at
+                <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi" target="_blank">
+                NCBI Taxonomy
+                </a>
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="entry_title">Genus:</span>
+            <input type="text" name="genus" size=30>
+            <span class="entry_title">Species:</span>
+            <input type="text" name="species" size=30>
+            <span class="entry_title">Strain:</span>
+            <input type="text" name="strain" size=30>
+            <span class="entry_title">Taxonomy ID:</span>
+            <input type="text" name="tax_id" size=30>
+        </div>
+
+        <div class="box left">
+            <h3>Biosafety Level</h3>
+            <p>
+                Enter here the biosafety level of the organism with a link to your reference.
+                There are 4 biosafety levels, assigned by the CDC. To learn more,
+                visit :
+                <a href="https://www.cdc.gov/training/quicklearns/biosafety/" target="_blank">
+                    the CDC training page
+                </a>
+
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="radiogroup">
+                Select biosafety level:<br><br>
+                <input type="radio" name="safety_level" value='0' id="sl0" checked>
+                <input type="radio" name="safety_level" value='1' id="sl1">
+                <label for="sl1">1</label>
+                <input type="radio" name="safety_level" value='2' id="sl2">
+                <label for="sl2">2</label>
+                <input type="radio" name="safety_level" value='3' id="sl3">
+                <label for="sl3">3</label>
+                <input type="radio" name="safety_level" value='4' id="sl4">
+                <label for="sl4">4</label>
+            </span>
+            <span class="entry_title">Reference:</span>
+            <input type="url" name="safety_level_ref" size=30>
+
+        </div>
+
+        <div class="box left">
+            <h3>Description</h3>
+            <p>
+                In this section, please give a few details about the host organism,
+                along with its unique characters which make it interesting for synthetic biology applications.
+
+                Please provide links to your references.
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="full_entry_title">Enter below:</span>
+            <textarea name="description" rows=5></textarea>
+            <span class="full_entry_title">References:</span>
+            <ul class="entry_list1" id="description_ref"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addSingleBox('description_ref')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Genotype</h3>
+            <p>
+                In this section, provide data about the genotype of the organism.
+                This includes any specific deletions or insertions your strain my have.
+                Please provide links to your references.
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="full_entry_title">Genotype:</span>
+            <textarea name="genotype" rows=2></textarea>
+            <span class="full_entry_title">Description:</span>
+            <textarea name="genotype_description" rows=4></textarea>
+            <span class="full_entry_title">References:</span>
+            <ul class="entry_list1" id="genotype_ref"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addSingleBox('genotype_ref')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Growth Characteristics</h3>
+            <p>
+                In this section, provide information about the optimal conditions and nutritional requirements for
+                growth and reproduction of the host. Include data such as optimal temperature, pH and doubling time.
+                Please provide links to your references.
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="full_entry_title">Enter below:</span>
+            <textarea name="growth" rows=5></textarea>
+            <span class="full_entry_title">References:</span>
+            <ul class="entry_list1" id="growth_ref"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addSingleBox('growth_ref')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Culture Sources</h3>
+            <p>
+                In this section please provide links to culture sources from which one may obtain a
+                culture of the organism. This may include culture collections such as ATCC, or research
+                labs that are willing to share the organism. Please provide links in the reference section.
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="culture_source"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('culture_source')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Maintenance protocols</h3>
+            <p>
+                In this section, mention the storage conditions and growth mediums for
+                maintenance of the organism. Provide links to webpages or research papers
+                describing the full protocol. If your lab uses a customized protocol and you are
+                willing to contribute that, please enter the information at
+                <a href="http://protocat.org/" target="_blank">
+                    protocat.org</a>, and paste the link here.
+            </p>
+
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="maintenance_protocol"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('maintenance_protocol')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Transformation protocols</h3>
+            <p>
+                In this section, mention the protocols used for transformation of organism.
+                Provide links to webpages or research papers describing the full protocol.
+                If your lab uses a customized protocol and you are
+                willing to contribute that, please enter the information at
+                <a href="http://protocat.org/" target="_blank">
+                    protocat.org</a>, and paste the link here.
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="transformation_protocol"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('transformation_protocol')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Other protocols</h3>
+            <p>
+                In this section, mention any other relevant protocols.
+                Provide links to webpages or research papers describing the full protocol.
+                If your lab uses a customized protocol and you are
+                willing to contribute that, please enter the information at
+                <a href="http://protocat.org/" target="_blank">
+                    protocat.org</a>, and paste the link here.
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="other_protocol"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('other_protocol')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Biobrick Parts</h3>
+            <p>
+                Please provide links to parts such as promoters, reporters, replication origin, resistance markers, etc. that can be used with this organism from
+                <a href="https://parts.igem.org"  target="_blank">
+                    parts.igem.org
+                </a>
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="biobrick_part"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('biobrick_part')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Vectors</h3>
+            <p>
+                Please mention and provide links to cloning vectors, expression vectors, shuttle vectors, etc.
+                that can be used with this organism.
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="vector"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('vector')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Metabolic Models</h3>
+            <p>
+                Please mention and provide links to metabolic models of this organism.
+            </p>
+        </div>
+        <div class="box right grid">
+            <ul class="entry_list2" id="metabolic_model"></ul>
+            <span class="full_entry_title end">
+                <span class="button" onclick="addDoubleBox('metabolic_model')">+ Add more</span>
+            </span>
+        </div>
+
+        <div class="box left">
+            <h3>Genome Sequence</h3>
+            <p>
+                The genome sequence can be usually found in the
+                <a href="https://www.ncbi.nlm.nih.gov/genome/browse/" target="_blank">NCBI database</a>
+                Please provide the link to the page which contains the genome sequence, from NCBI
+                or any other database.
+            </p>
+        </div>
+        <div class="box right grid">
+            <span class="entry_title">Link:</span>
+            <input type="url" name="genome_sequence" size=30>
+        </div>
+
+        <div class="box left">
+            <h3>Contibutor information</h3>
+        </div>
+        <div class="box right grid">
+            <span class="entry_title">Name:</span>
+            <input type="text" name="contributor_name" size=30 required>
+            <span class="entry_title">Designation</span>
+            <input type="text" name="contributor_designation" size=30>
+            <span class="entry_title">University/Lab</span>
+            <input type="text" name="contributor_affiliation" size=30>
+            <span class="entry_title">Email</span>
+            <input type="email" name="contributor_email" size=30 required>
+        </div>
+
+        <div class="footer">
+                <input type="submit" value="Submit data" onclick="beforesubmit()">
+        </div>
+    </form>
+</body>
+</html>
