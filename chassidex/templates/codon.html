@@ -154,6 +154,7 @@
         opt--;
         document.getElementById("org").selectedIndex = opt;
     }
+    //function to insert optimized codons while converting to nucleotide sequence
     function optimizeWithCodonTable(filename){
         req=new XMLHttpRequest();
         req.onreadystatechange = function(){
@@ -245,6 +246,7 @@
         }
         document.getElementById('rc').innerHTML = getRed();
     }
+    //function to 
     function download() {
         text = getSequenceFromEditor();
         fasta = "> Codon optimized sequence\n";
